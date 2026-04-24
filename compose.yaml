@@ -1,0 +1,19 @@
+services:
+  dj-sync-cron:
+    build:
+      context: .
+    image: dj-sync-cron:latest
+    container_name: dj-sync-cron
+    restart: unless-stopped
+    environment:
+      CRON_SCHEDULE: ${CRON_SCHEDULE:-17 3 * * *}
+      SYNC_LIMIT: ${SYNC_LIMIT:-200}
+      INCLUDE_BORDERLINE: ${INCLUDE_BORDERLINE:-false}
+      RUN_ON_START: ${RUN_ON_START:-false}
+    volumes:
+      - ${DJ_SYNC_SOURCE_DIR:-../ytm-dropbox-dj-sync}/.env:/runtime/.env:ro
+      - ${DJ_SYNC_SOURCE_DIR:-../ytm-dropbox-dj-sync}/.secrets:/runtime/.secrets
+      - ${DJ_SYNC_SOURCE_DIR:-../ytm-dropbox-dj-sync}/.data:/runtime/.data
+      - ${DJ_SYNC_SOURCE_DIR:-../ytm-dropbox-dj-sync}/library:/runtime/library
+      - ./logs:/var/log/dj-sync
+
