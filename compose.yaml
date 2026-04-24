@@ -2,11 +2,14 @@ services:
   dj-sync-cron:
     build:
       context: .
+      args:
+        DJ_SYNC_VERSION: ${DJ_SYNC_VERSION:-0.2.0}
     image: dj-sync-cron:latest
     container_name: dj-sync-cron
     restart: unless-stopped
     environment:
       CRON_SCHEDULE: ${CRON_SCHEDULE:-17 3 * * *}
+      DJ_SYNC_VERSION: ${DJ_SYNC_VERSION:-0.2.0}
       SYNC_LIMIT: ${SYNC_LIMIT:-200}
       INCLUDE_BORDERLINE: ${INCLUDE_BORDERLINE:-false}
       RUN_ON_START: ${RUN_ON_START:-false}
@@ -16,4 +19,3 @@ services:
       - ${DJ_SYNC_SOURCE_DIR:-../ytm-dropbox-dj-sync}/.data:/runtime/.data
       - ${DJ_SYNC_SOURCE_DIR:-../ytm-dropbox-dj-sync}/library:/runtime/library
       - ./logs:/var/log/dj-sync
-

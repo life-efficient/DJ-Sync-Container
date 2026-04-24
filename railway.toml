@@ -1,0 +1,9 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.railway"
+
+[deploy]
+startCommand = "/bin/sh -lc '/usr/local/bin/dj-sync-railway-start'"
+restartPolicyType = "NEVER"
+cronSchedule = "17 3 * * *"
+

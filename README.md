@@ -4,7 +4,7 @@ This repo builds a small Docker container that installs [DJ-Sync](https://github
 
 ## How It Works
 
-- the image installs the latest `DJ-Sync` CLI from GitHub
+- the image installs a pinned `DJ-Sync` package release
 - the container does not bake in secrets
 - instead, it bind-mounts your working DJ-Sync runtime files from the host
 - cron runs `ytm-dropbox-dj-sync sync --limit 200` on a daily schedule
@@ -24,6 +24,12 @@ By default, `compose.yaml` looks for them in `../ytm-dropbox-dj-sync`, so if thi
 
 If your working checkout lives somewhere else, set `DJ_SYNC_SOURCE_DIR` in a local `.env` file before starting the container.
 
+## Version Pinning
+
+The local Docker setup installs a pinned release asset from GitHub.
+
+Set `DJ_SYNC_VERSION` in your local `.env` if you want to upgrade or roll back the installed CLI version.
+
 ## Setup
 
 1. Create a local `.env` from [`.env.example`](/Users/harryberg/projects/DJ-Sync-Container/.env.example):
@@ -36,6 +42,7 @@ cp .env.example .env
 
 - `DJ_SYNC_SOURCE_DIR`: path to your working `DJ-Sync` checkout
 - `CRON_SCHEDULE`: standard cron expression
+- `DJ_SYNC_VERSION`: released DJ-Sync package version
 - `SYNC_LIMIT`: how many liked items to inspect per run
 - `INCLUDE_BORDERLINE`: set to `true` only if you want looser matching
 - `RUN_ON_START`: set to `true` if you want one sync immediately when the container starts
@@ -56,4 +63,29 @@ docker logs -f dj-sync-cron
 
 - This repo does not prune Docker volumes or clean up unrelated containers.
 - Rebuild the image when you want to pick up new `DJ-Sync` commits from GitHub.
+- Rebuild the image when you want to pick up a newer released `DJ-Sync` package version.
 - The runtime data remains on the host because the container bind-mounts your working config, auth, and library directories.
+
+## Railway
+
+Railway has a native cron-job deployment model, so the better Railway setup is not to run cron inside the container.
+
+This repo includes:
+
+- `Dockerfile.railway`: a one-shot image for Railway
+- `railway.toml`: config-as-code for a Railway cron deployment
+- `scripts/railway-start.sh`: startup validation for required secrets
+
+Recommended Railway variables:
+
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REFRESH_TOKEN`
+- `DROPBOX_APP_KEY`
+- `DROPBOX_APP_SECRET`
+- `DROPBOX_REFRESH_TOKEN`
+- `DROPBOX_ROOT`
+- `SYNC_LIMIT`
+- `INCLUDE_BORDERLINE`
+
+Railway variables are the right place for secrets. Railway's config file can define the Dockerfile path, start command, and cron schedule, but it does not itself enforce secret prompts. The startup script fills that gap by failing clearly if required variables are missing.
