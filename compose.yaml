@@ -10,6 +10,7 @@ services:
     environment:
       CRON_SCHEDULE: ${CRON_SCHEDULE:-17 3 * * *}
       DJ_SYNC_VERSION: ${DJ_SYNC_VERSION:-0.2.0}
+      DJ_SYNC_AUTO_UPDATE: ${DJ_SYNC_AUTO_UPDATE:-false}
       SYNC_LIMIT: ${SYNC_LIMIT:-200}
       INCLUDE_BORDERLINE: ${INCLUDE_BORDERLINE:-false}
       RUN_ON_START: ${RUN_ON_START:-false}

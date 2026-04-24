@@ -8,6 +8,7 @@ This repo builds a small Docker container that installs [DJ-Sync](https://github
 - the container does not bake in secrets
 - instead, it bind-mounts your working DJ-Sync runtime files from the host
 - cron runs `ytm-dropbox-dj-sync sync --limit 200` on a daily schedule
+- optional auto-update checks can upgrade the installed CLI from PyPI once per day before a sync runs
 
 ## Secret Onboarding
 
@@ -30,6 +31,8 @@ The local Docker setup installs a pinned release asset from GitHub.
 
 Set `DJ_SYNC_VERSION` in your local `.env` if you want to upgrade or roll back the installed CLI version.
 
+If you set `DJ_SYNC_AUTO_UPDATE=true`, the container will check PyPI once per UTC day before running a sync. If a newer `ytm-dropbox-dj-sync` release exists, it upgrades the CLI in-place and then runs the job.
+
 ## Setup
 
 1. Create a local `.env` from [`.env.example`](/Users/harryberg/projects/DJ-Sync-Container/.env.example):
@@ -43,6 +46,7 @@ cp .env.example .env
 - `DJ_SYNC_SOURCE_DIR`: path to your working `DJ-Sync` checkout
 - `CRON_SCHEDULE`: standard cron expression
 - `DJ_SYNC_VERSION`: released DJ-Sync package version
+- `DJ_SYNC_AUTO_UPDATE`: set to `true` if you want the container to pick up newer PyPI releases automatically
 - `SYNC_LIMIT`: how many liked items to inspect per run
 - `INCLUDE_BORDERLINE`: set to `true` only if you want looser matching
 - `RUN_ON_START`: set to `true` if you want one sync immediately when the container starts
@@ -62,8 +66,9 @@ docker logs -f dj-sync-cron
 ## Notes
 
 - This repo does not prune Docker volumes or clean up unrelated containers.
-- Rebuild the image when you want to pick up new `DJ-Sync` commits from GitHub.
-- Rebuild the image when you want to pick up a newer released `DJ-Sync` package version.
+- Rebuild the image when you want to pick up a new pinned base version.
+- If `DJ_SYNC_AUTO_UPDATE=true`, routine package upgrades happen inside the running container without a rebuild.
+- If you recreate the container from scratch, it starts again from the image's pinned base version and can then auto-update forward from there.
 - The runtime data remains on the host because the container bind-mounts your working config, auth, and library directories.
 
 ## Railway
